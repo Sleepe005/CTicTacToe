@@ -282,9 +282,138 @@ bool findDraw(int coutForWin, int sizeX, int sizeY, int **arr1, int **arr2){
     return false;
 }
 
+void printField(int sizeX, int sizeY, int cursePosX, int cursePosY, bool ticGo, int **tics, int **toes){
+    clear();
+    for(int row = 0; row < sizeX; row++){
+        for(int column = 0; column < sizeY; column++){
+            if(cursePosX == column && cursePosY == row && findIn2Array(row, column, tics, sizeX)){
+                printw("x");
+            }else if(cursePosX == column && cursePosY == row && findIn2Array(row, column, toes, sizeX)){
+                printw("o");
+            }else if(cursePosX == column && cursePosY == row){
+                printw("*");
+            }else if(findIn2Array(row, column, tics, sizeX)){
+                printw("X");
+            }else if(findIn2Array(row, column, toes, sizeX)){
+                printw("O");
+            }else{
+                printw("·");
+            }
+        }
+        printw("\n");
+    }
+    printw("\n");
+    if(ticGo){printw("Ход крестиков\n");}
+    else{printw("Ход ноликов\n");}
+    printw("Для перемещения по полю используйте стрелочки\n");
+}
+
+void play(){
+    int sizeX = 0, sizeY = 0;
+
+    int i_coutForWin;
+
+    getValuesForField(&sizeX, &sizeY, &i_coutForWin);
+
+    // Tics Array
+    int **tics = (int **)malloc(sizeX * sizeof(int *));
+    for (int i = 0; i < sizeX; i++) {
+        tics[i] = (int *)malloc(sizeY * sizeof(int));
+    }
+    // Инициализация массива
+    for (int i = 0; i < sizeX; i++) {
+        for (int j = 0; j < sizeY; j++) {
+            tics[i][j] = -1; // Присваиваем 0 всем элементам
+        }
+    }
+    int ticPos = 0;
+
+    // Toes Array
+    int **toes = (int **)malloc(sizeX * sizeof(int *));
+    for (int i = 0; i < sizeX; i++) {
+        toes[i] = (int *)malloc(sizeY * sizeof(int));
+    }
+    // Инициализация массива
+    for (int i = 0; i < sizeX; i++) {
+        for (int j = 0; j < sizeY; j++) {
+            toes[i][j] = -1; // Присваиваем 0 всем элементам
+        }
+    }
+    int toePos = 0;
+
+    bool ticGo = true;
+    int cursePosX = 0, cursePosY = 0;
+    int key;
+    bool letsPlay = true;
+    while(letsPlay){
+        if(findWin(i_coutForWin, sizeX, sizeY, tics)){
+            clear();
+            printw("Крестики выйграли");
+            break;
+        }else if(findWin(i_coutForWin, sizeX, sizeY, toes)){
+            clear();
+            printw("Нолики выйграли");
+            break;
+        }
+        // else if(!findDraw(i_coutForWin, sizeX, sizeY, tics, toes) && !findDraw(i_coutForWin, sizeX, sizeY, toes, tics)){
+        //     clear();
+        //     printw("Ничья");
+        //     break;
+        // }
+        printField(sizeX, sizeY, cursePosX, cursePosY, ticGo, tics, toes);
+        key = getch();
+        if(key == 27){
+            key = getch();
+            if(key == 91){
+                key = getch();
+                if(key == 65){
+                    cursePosY--;
+                    if(cursePosY < 0){
+                        cursePosY = sizeX-1;
+                    }
+                }else if(key == 66){
+                    cursePosY++;
+                    if(cursePosY > sizeX-1){
+                        cursePosY = 0;
+                    }
+                }else if(key == 68){
+                    cursePosX--;
+                    if(cursePosX < 0){
+                        cursePosX = sizeY-1;
+                    }
+                }else if(key == 67){
+                    cursePosX++;
+                    if(cursePosX > sizeY-1){
+                        cursePosX = 0;
+                    }
+                }
+            }
+        }else if(key == 10){
+            if(ticGo && !findIn2Array(cursePosY, cursePosX, toes, sizeX) && !findIn2Array(cursePosY, cursePosX, tics, sizeX)){
+                tics[ticPos][0] = cursePosY;
+                tics[ticPos][1] = cursePosX;
+                ticPos++;
+                ticGo = !ticGo;
+            }else if(!ticGo && !findIn2Array(cursePosY, cursePosX, tics, sizeX) && !findIn2Array(cursePosY, cursePosX, toes, sizeX)){
+                toes[toePos][0] = cursePosY;
+                toes[toePos][1] = cursePosX;
+                toePos++;
+                ticGo = !ticGo;
+            }
+        }
+    }
+}
 
 int main(){
     setlocale(LC_ALL, "");
+    initscr();
 
+    bool goPlay = true;
+    while(goPlay){
+        clear();
+        play();
+        getch();
+    }
+    
     return 0;
 }
