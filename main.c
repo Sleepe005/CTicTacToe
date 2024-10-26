@@ -98,6 +98,30 @@ bool getValuesForField(int* sizeX, int* sizeY, int* i_coutForWin){
     return true;
 }
 
+bool findIn2Array(int row, int column, int **arr, int rows){
+    for(int i = 0; i < rows; i++){
+        if(arr[i][0] == row && arr[i][1] == column){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void zeroArray(int row, int column, int **arr){
+//    TODO: Do it
+    arr = (int **)malloc(row * sizeof(int *));
+    for (int i = 0; i < row; i++) {
+        arr[i] = (int *)malloc(column * sizeof(int));
+    }
+    // Инициализация массива
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < column; j++) {
+            arr[i][j] = 0; // Присваиваем 0 всем элементам
+        }
+    }
+}
+
 
 int main(){
     setlocale(LC_ALL, "");
