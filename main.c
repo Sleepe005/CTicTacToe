@@ -129,7 +129,6 @@ bool findWin(int coutForWin, int sizeX, int sizeY, int **arr){
         for(int j = 0; j <= sizeY-coutForWin; j++){
             int cnt = 0;
             for(int it = j; it < j+coutForWin; it++){
-                if((i < 0 || j < 0) || (i > sizeX || it > sizeY) ){break;}
                 if(findIn2Array(i, it, arr, sizeX*sizeY)){
                     cnt += 1;
                 }
@@ -141,11 +140,10 @@ bool findWin(int coutForWin, int sizeX, int sizeY, int **arr){
     }
 
     // Перебор всех столбцов длины X
-    for(int i = 0; i < sizeX; i++){
-        for(int j = 0; j <= sizeY-coutForWin; j++){
+     for(int i = 0; i < sizeY; i++){
+        for(int j = 0; j <= sizeX-coutForWin; j++){
             int cnt = 0;
             for(int it = j; it < j+coutForWin; it++){
-                if((i < 0 || j < 0) || (it > sizeX || i > sizeY) ){break;}
                 if(findIn2Array(it, i, arr, sizeX*sizeY)){
                     cnt += 1;
                 }
@@ -157,37 +155,31 @@ bool findWin(int coutForWin, int sizeX, int sizeY, int **arr){
     }
 
     // Перебор всех диагоналей длины X
-    if(sizeX >= coutForWin && sizeY >= coutForWin){
-        for(int i = 0; i <= sizeX-coutForWin; i++){
-            for(int j = 0; j <= sizeY-coutForWin; j++){
-                if(i < 0 || j < 0 ){break;}
-                int cnt = 0;
-                for(int d = 0; d < coutForWin; d++){
-                    if((i < 0 || j < 0) || (i+d > sizeX || j+d > sizeY) ){break;}
-                    if(findIn2Array(i+d, j+d, arr, sizeX*sizeY)){
-                        cnt += 1;
-                    }
-                }
-                if(cnt == coutForWin){
-                    return true;
+    for(int i = 0; i <= sizeX-coutForWin; i++){
+        for(int j = 0; j <= sizeY-coutForWin; j++){
+            int cnt = 0;
+            for(int d = 0; d < coutForWin; d++){
+                if(findIn2Array(i+d, j+d, arr, sizeX*sizeY)){
+                    cnt += 1;
                 }
             }
+            if(cnt == coutForWin){
+                return true;
+            }
         }
+    }
 
-        // Перебор всех побочных диагоналей длины X
-        for(int i = sizeX-1; i >= coutForWin-1; i--){
-            for(int j = sizeY-1; j >= coutForWin-1; j--){
-                if(i < 0 || j < 0){break;}
-                int cnt = 0;
-                for(int d = 0; d<coutForWin; d++){
-                    if((i < 0 || j < 0) || (i-d < 0 || j-d < 0) ){break;}
-                    if(findIn2Array(i-d, j-d, arr, sizeX*sizeY)){
-                        cnt += 1;
-                    }
+    // Перебор всех побочных диагоналей длины X
+    for(int i = 0; i <= sizeX-coutForWin; i++){
+        for(int j = sizeY-1; j >= coutForWin-1; j--){
+            int cnt = 0;
+            for(int d = 0; d<coutForWin; d++){
+                if(findIn2Array(i+d, j-d, arr, sizeX*sizeY)){
+                    cnt += 1;
                 }
-                if(cnt == coutForWin){
-                    return true;
-                }
+            }
+            if(cnt == coutForWin){
+                return true;
             }
         }
     }
