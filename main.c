@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 
-void Split(char data[6], int *value){
+void Split(char data[7], int *value){
     char element[3] = "";
     int pos = 0;
     int j = 0;
@@ -24,78 +24,91 @@ void Split(char data[6], int *value){
     value[j] = atoi(element);
 }
 
-bool isSample(char strData[6]){
-    bool allDigIsDig = true;
-    bool hasSep = true; // __.__.____
-    for(int i = 0; i < strlen(strData); ++i){
-        // TODO: Разрешить на вход цифры
-        if(i == 2){
-            if(!ispunct(strData[i])){
-                hasSep = false;
-            }
-        }else if(!isdigit(strData[i]))
-            allDigIsDig = false;
-        }
-    return allDigIsDig && hasSep;
-}
-
 bool getValuesForField(int* sizeX, int* sizeY, int* i_coutForWin){
     // Получаем размер игрового поля
-    clear();
-    printw("Введите размеры игрового поля в формате <X>:<Y>\n(Два числа разделённых двоеточием):");
-
-    char sizes[6];
-    scanw("%s", &sizes);
-
-    // Обрабатываем неверный формат ввода данных
-    // if(!isSample(sizes)){
-    //     clear();
-    //     printw("Неверный формат входных данных");
-    //     getch();
-    //     return false;
-    // }
-
-    int sizesValues[2];
-    Split(sizes, sizesValues);
-    *sizeX = sizesValues[0];
-    *sizeY = sizesValues[1];
-
-    // Обрабатываем нееверные числовые значения данных
-    if(*sizeX < 4 || *sizeY < 4 || *sizeX > 20 || *sizeY > 20){
+    bool allGood = false;
+    while(!allGood){
         clear();
-        printw("Минимальный размер - 4, максимальный размер - 20");
-        getch();
-        *sizeX = 0;
-        *sizeY = 0;
-        return false;
-    }
+        printw("Введите размеры игрового поля в формате <X>:<Y>\n(Два числа, разделённых двоеточием):");
 
+        char sizes[7];
+
+        // Обрабатываем неверный формат ввода данных
+        bool isSample = true;
+        scanw("%s", &sizes);
+        if(strlen(sizes) > 5){
+            isSample = false;
+        }else if(strlen(sizes) == 4){
+            if(ispunct(sizes[1]) && !(isdigit(sizes[0]) && isdigit(sizes[2]) && isdigit(sizes[3]))){
+                isSample = false;
+            }else if(ispunct(sizes[2]) && !(isdigit(sizes[0]) && isdigit(sizes[1]) && isdigit(sizes[3]))){
+                isSample = false;
+            }else if(!(ispunct(sizes[1]) || ispunct(sizes[2]))){
+                isSample = false;
+            }
+        }else if(strlen(sizes) == 3){
+            if(!isdigit(sizes[0]) && !ispunct(sizes[1]) && !isdigit(sizes[2])){
+                isSample = false;
+            }
+        }else if(strlen(sizes) < 3){
+            isSample = false;
+        }
+        
+        if(!isSample){
+            clear();
+            printw("Неверный формат входных данных\n");
+            printw("Нажмите любую клавишу");
+            getch();
+        }
+
+        bool inDiapozon = false;
+        if(isSample){
+            int sizesValues[2];
+            Split(sizes, sizesValues);
+
+            if(sizesValues[0] < 4 || sizesValues[1] < 4 || sizesValues[0] > 20 || sizesValues[1] > 20){
+                clear();
+                printw("Неверный формат входных данных\n");
+                printw("Минимальный размер - 4, максимальный размер - 20\n");
+                printw("Нажмите любую клавишу");
+                getch();
+            }else{
+                inDiapozon = true;
+                *sizeX = sizesValues[0];
+                *sizeY = sizesValues[1];
+            }
+        }
+
+        allGood = isSample && inDiapozon;
+
+    }   
+    
+    bool isSample = false;
     // Получаем количество элементов, необходимых для победы
     clear();
     printw("Введи количество крестиков или ноликов, необходимых для победы");
+    while(!isSample){
+        char coutForWin[3];
+        scanw("%s", &coutForWin);
 
-    char coutForWin[3];
-    scanw("%s", &coutForWin);
+        // Обрабатываем неверный формат ввода данных
+        bool goodInputCout = true;
+        for(int i = 0; i < strlen(coutForWin); i++){
+            if(!isdigit(coutForWin[i])){
+                goodInputCout = false;
+            }
+        }
 
-    // Обрабатываем неверный формат ввода данных
-    bool goodInputCout = true;
-    for(int i = 0; i < strlen(coutForWin); i++){
-        if(!isdigit(coutForWin[i])){
-            goodInputCout = false;
+        if(!goodInputCout || strlen(coutForWin) == 0){
+            clear();
+            printw("Неверный формат данных :(\nВведите число снова");
+            strcpy(coutForWin, "");
+        }else{
+            isSample = true;
+        *i_coutForWin = atoi(coutForWin);
+
         }
     }
-
-    if(!goodInputCout || strlen(coutForWin) == 0){
-        clear();
-        printw("Неверный формат данных");
-        getch();
-        strcpy(coutForWin, "");
-        return false;
-        // TODO: И чё?
-    }
-
-    *i_coutForWin = atoi(coutForWin);
-
     return true;
 }
 
@@ -251,7 +264,7 @@ bool canWin(int coutForWin, int sizeX, int sizeY, int **arrToWin, int **arrToLos
     return false;
 }
 
-void printField(int sizeX, int sizeY, int cursePosX, int cursePosY, bool ticGo, int **tics, int **toes){
+void printField(int sizeX, int sizeY, int cursePosX, int cursePosY, bool ticGo, int **tics, int **toes, int countForWin){
     clear();
     for(int row = 0; row < sizeX; row++){
         for(int column = 0; column < sizeY; column++){
@@ -274,7 +287,9 @@ void printField(int sizeX, int sizeY, int cursePosX, int cursePosY, bool ticGo, 
     printw("\n");
     if(ticGo){printw("Ход крестиков\n");}
     else{printw("Ход ноликов\n");}
+    printw("Для победы нужно сделать ряд из %d элементов подряд\n", countForWin);
     printw("Для перемещения по полю используйте стрелочки\n");
+
 }
 
 void play(){
@@ -315,20 +330,12 @@ void play(){
     int key;
     bool letsPlay = true;
     while(letsPlay){
-        
-        // else if(!findDraw(i_coutForWin, sizeX, sizeY, tics, toes) && !findDraw(i_coutForWin, sizeX, sizeY, toes, tics)){
-        //     clear();
-        //     printw("Ничья");
-        //     break;
-        // }
-        printField(sizeX, sizeY, cursePosX, cursePosY, ticGo, tics, toes);
+        printField(sizeX, sizeY, cursePosX, cursePosY, ticGo, tics, toes, i_coutForWin);
 
         if(findWin(i_coutForWin, sizeX, sizeY, tics)){
-            // clear();
             printw("\nКрестики выйграли");
             break;
         }else if(findWin(i_coutForWin, sizeX, sizeY, toes)){
-            // clear();
             printw("\nНолики выйграли");
             break;
         }else if(!canWin(i_coutForWin, sizeX, sizeY, tics, toes) && !canWin(i_coutForWin, sizeX, sizeY, toes, tics)){
