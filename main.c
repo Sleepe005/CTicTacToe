@@ -187,6 +187,70 @@ bool findWin(int coutForWin, int sizeX, int sizeY, int **arr){
     return false;
 }
 
+bool canWin(int coutForWin, int sizeX, int sizeY, int **arrToWin, int **arrToLose){
+     // Перебор всех строк длины X
+    for(int i = 0; i < sizeX; i++){
+        for(int j = 0; j <= sizeY-coutForWin; j++){
+            int cnt = 0;
+            for(int it = j; it < j+coutForWin; it++){
+                if(findIn2Array(i, it, arrToWin, sizeX*sizeY) || !findIn2Array(i, it, arrToLose, sizeX*sizeY)){
+                    cnt += 1;
+                }
+            }
+            if(cnt == coutForWin){
+                return true;
+            }
+        }
+    }
+
+    // Перебор всех столбцов длины X
+     for(int i = 0; i < sizeY; i++){
+        for(int j = 0; j <= sizeX-coutForWin; j++){
+            int cnt = 0;
+            for(int it = j; it < j+coutForWin; it++){
+                if(findIn2Array(it, i, arrToWin, sizeX*sizeY) || !findIn2Array(i, it, arrToLose, sizeX*sizeY)){
+                    cnt += 1;
+                }
+            }
+            if(cnt == coutForWin){
+                return true;
+            }
+        }
+    }
+
+    // Перебор всех диагоналей длины X
+    for(int i = 0; i <= sizeX-coutForWin; i++){
+        for(int j = 0; j <= sizeY-coutForWin; j++){
+            int cnt = 0;
+            for(int d = 0; d < coutForWin; d++){
+                if(findIn2Array(i+d, j+d, arrToWin, sizeX*sizeY) || !findIn2Array(i+d, j+d, arrToLose, sizeX*sizeY)){
+                    cnt += 1;
+                }
+            }
+            if(cnt == coutForWin){
+                return true;
+            }
+        }
+    }
+
+    // Перебор всех побочных диагоналей длины X
+    for(int i = 0; i <= sizeX-coutForWin; i++){
+        for(int j = sizeY-1; j >= coutForWin-1; j--){
+            int cnt = 0;
+            for(int d = 0; d<coutForWin; d++){
+                if(findIn2Array(i+d, j-d, arrToWin, sizeX*sizeY) || !findIn2Array(i+d, j-d, arrToLose, sizeX*sizeY)){
+                    cnt += 1;
+                }
+            }
+            if(cnt == coutForWin){
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void printField(int sizeX, int sizeY, int cursePosX, int cursePosY, bool ticGo, int **tics, int **toes){
     clear();
     for(int row = 0; row < sizeX; row++){
@@ -266,6 +330,9 @@ void play(){
         }else if(findWin(i_coutForWin, sizeX, sizeY, toes)){
             // clear();
             printw("\nНолики выйграли");
+            break;
+        }else if(!canWin(i_coutForWin, sizeX, sizeY, tics, toes) && !canWin(i_coutForWin, sizeX, sizeY, toes, tics)){
+            printw("Ничья");
             break;
         }
 
